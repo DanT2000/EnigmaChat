@@ -1,22 +1,29 @@
 #!/bin/bash
 
-APP_DIR="/opt/mychat"
+APP_DIR="/opt/EnigmaChat"
 VENV_DIR="$APP_DIR/venv"
-SERVICE_FILE="/etc/systemd/system/mychat.service"
-PORT=9125
+SERVICE_FILE="/etc/systemd/system/EnigmaChat.service"
+DEFAULT_PORT=9125
+
+function prompt_for_port() {
+    read -p "Введите порт для EnigmaChat (нажмите Enter для использования порта по умолчанию $DEFAULT_PORT): " PORT
+    PORT=${PORT:-$DEFAULT_PORT}
+}
 
 function install() {
-    echo "🔧 Установка и подготовка окружения..."
+    echo "🔧 Начинается установка EnigmaChat..."
 
-    # Установка зависимостей
+    prompt_for_port
+
+    # Установка необходимых пакетов
     sudo apt update
     sudo apt install -y python3 python3-venv python3-pip curl iptables-persistent
 
-    # Создание папки приложения
+    # Создание каталога приложения
     sudo mkdir -p "$APP_DIR"
     sudo chown $USER:$USER "$APP_DIR"
 
-    # Создание server.py-шаблона
+    # Создание шаблона server.py
     if [ ! -f "$APP_DIR/server.py" ]; then
         cat > "$APP_DIR/server.py" <<EOF
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
@@ -256,12 +263,12 @@ async def index():
         raise HTTPException(status_code=404, detail="index.html not found")
 
 EOF
-        echo "📄 Файл server.py создан как шаблон"
+        echo "📄 Файл server.py создан как шаблон."
     else
-        echo "✅ Файл server.py уже существует, не трогаю"
+        echo "✅ Файл server.py уже существует, пропускаем создание."
     fi
 
-    # Создание index.html-шаблона
+    # Создание шаблона index.html
     if [ ! -f "$APP_DIR/index.html" ]; then
         cat > "$APP_DIR/index.html" <<EOF
 <!DOCTYPE html>
@@ -810,12 +817,12 @@ EOF
 </html>
 
 EOF
-        echo "📄 Файл index.html создан как шаблон"
+        echo "📄 Файл index.html создан как шаблон."
     else
-        echo "✅ Файл index.html уже существует, не трогаю"
+        echo "✅ Файл index.html уже существует, пропускаем создание."
     fi
 
-    # Создание виртуального окружения
+    # Создание виртуального окружения и установка зависимостей
     python3 -m venv "$VENV_DIR"
     source "$VENV_DIR/bin/activate"
     pip install --upgrade pip
@@ -823,10 +830,10 @@ EOF
     deactivate
 
     # Создание systemd сервиса
-    echo "⚙️ Создание systemd сервиса..."
+    echo "⚙️ Создание systemd сервиса EnigmaChat..."
     sudo bash -c "cat > $SERVICE_FILE" <<EOF
 [Unit]
-Description=My Secure Chat App
+Description=EnigmaChat Service
 After=network.target
 
 [Service]
@@ -840,44 +847,47 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-    sudo systemctl daemon-reexec
+    # Перезагрузка systemd и запуск сервиса
     sudo systemctl daemon-reload
-    sudo systemctl enable mychat.service
-    sudo systemctl restart mychat.service
+    sudo systemctl enable EnigmaChat.service
+    sudo systemctl restart EnigmaChat.service
 
-    # Открываем порт
-    echo "🛡 Открываем порт $PORT в iptables..."
+    # Настройка брандмауэра для открытия выбранного порта
+    echo "🛡 Открытие порта $PORT в брандмауэре..."
     sudo iptables -I INPUT -p tcp --dport $PORT -j ACCEPT
     sudo netfilter-persistent save
 
-    echo "✅ Установка завершена. Чат будет доступен на: http://<IP>:${PORT}"
-
+    echo "✅ Установка завершена. EnigmaChat работает на порту $PORT."
+    echo "👉 Откройте в браузере: http://<IP-адрес>:$PORT"
+    echo "✍️ Не забудьте добавить ваш код в файлы:"
+    echo "    $APP_DIR/server.py"
+    echo "    $APP_DIR/index.html"
 }
 
 function remove() {
-    echo "❌ Удаление..."
+    echo "❌ Начинается удаление EnigmaChat..."
 
     # Остановка и удаление сервиса
-    sudo systemctl stop mychat.service
-    sudo systemctl disable mychat.service
+    sudo systemctl stop EnigmaChat.service
+    sudo systemctl disable EnigmaChat.service
     sudo rm -f "$SERVICE_FILE"
     sudo systemctl daemon-reload
 
-    # Удаление проекта
+    # Удаление каталога приложения
     sudo rm -rf "$APP_DIR"
 
-    # Закрытие порта
-    echo "🛡 Закрываем порт $PORT..."
+    # Закрытие порта в брандмауэре
+    echo "🛡 Закрытие порта в брандмауэре..."
     sudo iptables -D INPUT -p tcp --dport $PORT -j ACCEPT 2>/dev/null
     sudo netfilter-persistent save
 
-    echo "🧹 Всё удалено"
+    echo "🧹 Удаление завершено."
 }
 
 # Главное меню
 clear
 echo "==============================="
-echo "     УСТАНОВКА ЧАТ-СЕРВЕРА     "
+echo "     УСТАНОВКА EnigmaChat      "
 echo "==============================="
 echo "1. Установить"
 echo "2. Удалить"
@@ -888,5 +898,5 @@ case $choice in
     1) install ;;
     2) remove ;;
     0) exit 0 ;;
-    *) echo "Неверный выбор." ;;
+    *) echo "Неверный выбор. Пожалуйста, выберите 1, 2 или 0." ;;
 esac
