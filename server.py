@@ -60,9 +60,9 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
             if chats[chat_name]["messages"]:
                 last_ts = chats[chat_name]["messages"][-1].get("timestamp")
                 try:
-                    last_dt = datetime.datetime.fromisoformat(last_ts) if last_ts else datetime.datetime.now(datetime.UTC)
+                    last_dt = datetime.datetime.fromisoformat(last_ts) if last_ts else datetime.datetime.utcnow()
                 except Exception:
-                    last_dt = datetime.datetime.now(datetime.UTC)
+                    last_dt = datetime.datetime.utcnow()
                 chats[chat_name]["last_active"] = last_dt
             else:
                 # Если сообщений нет, берём время изменения файла (время создания чата)
@@ -70,7 +70,7 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                     mtime = os.path.getmtime(file_path)
                     chats[chat_name]["last_active"] = datetime.datetime.fromtimestamp(mtime)
                 except:
-                    chats[chat_name]["last_active"] = datetime.datetime.now(datetime.UTC)
+                    chats[chat_name]["last_active"] = datetime.datetime.utcnow()
             chat = chats[chat_name]
             if chat["password"] is not None:
                 authenticated = False
@@ -82,7 +82,7 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                 "password": None,
                 "messages": [],
                 "connections": [],
-                "last_active": datetime.datetime.now(datetime.UTC)
+                "last_active": datetime.datetime.utcnow()
             }
             chat = chats[chat_name]
             authenticated = True
@@ -115,7 +115,7 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                     # Пароль верный
                     authenticated = True
                     # Обновляем отметку активности (успешное подключение - тоже активность)
-                    chat["last_active"] = datetime.datetime.now(datetime.UTC)
+                    chat["last_active"] = datetime.datetime.utcnow()
                     # Отправляем историю сообщений новому участнику
                     if chat["messages"]:
                         for old_msg in chat["messages"]:
@@ -141,7 +141,7 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                     # Если у чата ещё нет пароля, то первое сообщение устанавливает пароль
                     chat["password"] = text
                     # Обновляем время активности
-                    chat["last_active"] = datetime.datetime.now(datetime.UTC)
+                    chat["last_active"] = datetime.datetime.utcnow()
                     # Сохраняем чат в файл с новым паролем
                     chat_data = {
                         "name": chat_name,
@@ -157,13 +157,13 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                     })
                     continue
                 # Обычная обработка сообщения
-                timestamp = datetime.datetime.now(datetime.UTC).isoformat()
+                timestamp = datetime.datetime.utcnow().isoformat()
                 message_entry = {"name": name, "text": text, "timestamp": timestamp}
                 if iv:
                     message_entry["iv"] = iv
                 # Сохраняем сообщение в истории
                 chat["messages"].append(message_entry)
-                chat["last_active"] = datetime.datetime.now(datetime.UTC)
+                chat["last_active"] = datetime.datetime.utcnow()
                 # Обновляем файл чата на диске
                 chat_data = {
                     "name": chat_name,
@@ -203,7 +203,7 @@ async def delete_chat(chat_name: str):
 async def cleanup_chats():
     while True:
         await asyncio.sleep(60)
-        now = datetime.datetime.now(datetime.UTC)
+        now = datetime.datetime.utcnow()
         to_delete = []
         for name, chat in list(chats.items()):
             if chat["last_active"] is None:
