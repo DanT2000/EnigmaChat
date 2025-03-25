@@ -4,8 +4,10 @@
 > 🇷🇺 Этот файл доступен на русском и английском языках  
 > 🇬🇧 This file is available in Russian and English
 
-- [Перейти к русской версии](#русская-версия)
-- [Go to English version](#english-version)
+## 🔀 Навигация
+- [🇷🇺 Русская версия](#русская-версия)
+- [🇬🇧 English Version](#english-version)
+
 ## 🕵️ EnigmaChat — Anonymous Encrypted Chat
 
 **EnigmaChat** is a local, secure chat without registration or cloud storage.  
