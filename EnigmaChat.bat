@@ -36,6 +36,6 @@ if "%PORT%"=="" set PORT=9125
 REM Запуск сервера
 echo 🚀 Запуск EnigmaChat на порту %PORT%...
 start http://localhost:%PORT%
-uvicorn server:app --host 0.0.0.0 --port %PORT%
+uvicorn server:app --port %PORT%
 
 pause
