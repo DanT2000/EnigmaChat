@@ -6,15 +6,8 @@ VENV_DIR="$APP_DIR/venv"
 SERVICE_FILE="/etc/systemd/system/enigmachat.service"
 DEFAULT_PORT=9125
 
-function prompt_for_port() {
-    read -p "Введите порт для EnigmaChat (нажмите Enter для использования порта по умолчанию $DEFAULT_PORT): " PORT
-    PORT=${PORT:-$DEFAULT_PORT}
-}
-
 function install() {
     echo "🔧 Начинается установка EnigmaChat..."
-
-    prompt_for_port
 
     sudo apt update
     sudo apt install -y python3 python3-venv python3-pip curl iptables-persistent
@@ -41,7 +34,7 @@ After=network.target
 Type=simple
 User=$USER
 WorkingDirectory=$APP_DIR
-ExecStart=$VENV_DIR/bin/uvicorn server:app --host 0.0.0.0 --port $PORT
+ExecStart=$VENV_DIR/bin/uvicorn server:app --host 0.0.0.0 --port $DEFAULT_PORT
 Restart=on-failure
 
 [Install]
@@ -52,11 +45,11 @@ EOF
     sudo systemctl enable enigmachat.service
     sudo systemctl restart enigmachat.service
 
-    echo "🛡 Открытие порта $PORT..."
-    sudo iptables -I INPUT -p tcp --dport $PORT -j ACCEPT
+    echo "🛡 Открытие порта $DEFAULT_PORT..."
+    sudo iptables -I INPUT -p tcp --dport $DEFAULT_PORT -j ACCEPT
     sudo netfilter-persistent save
 
-    echo "✅ Установка завершена. EnigmaChat доступен по адресу http://localhost:$PORT"
+    echo "✅ Установка завершена. EnigmaChat доступен по адресу http://localhost:$DEFAULT_PORT"
 }
 
 function remove() {
