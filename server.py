@@ -2,10 +2,18 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import HTMLResponse
 import asyncio
 import os
+import sys
 import json
 import datetime
-
+from pathlib import Path
+import webbrowser
+import uvicorn
+from fastapi.responses import FileResponse
+import datetime
 app = FastAPI()
+
+# Поддержка работы из PyInstaller .exe
+BASE_DIR = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parent))
 
 # Хранилище диалогов в памяти.
 # Формат: chats[chat_name] = {"password": str или None, "messages": list, "connections": list, "last_active": datetime}
@@ -52,9 +60,9 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
             if chats[chat_name]["messages"]:
                 last_ts = chats[chat_name]["messages"][-1].get("timestamp")
                 try:
-                    last_dt = datetime.datetime.fromisoformat(last_ts) if last_ts else datetime.datetime.utcnow()
+                    last_dt = datetime.datetime.fromisoformat(last_ts) if last_ts else datetime.datetime.now(datetime.UTC)
                 except Exception:
-                    last_dt = datetime.datetime.utcnow()
+                    last_dt = datetime.datetime.now(datetime.UTC)
                 chats[chat_name]["last_active"] = last_dt
             else:
                 # Если сообщений нет, берём время изменения файла (время создания чата)
@@ -62,7 +70,7 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                     mtime = os.path.getmtime(file_path)
                     chats[chat_name]["last_active"] = datetime.datetime.fromtimestamp(mtime)
                 except:
-                    chats[chat_name]["last_active"] = datetime.datetime.utcnow()
+                    chats[chat_name]["last_active"] = datetime.datetime.now(datetime.UTC)
             chat = chats[chat_name]
             if chat["password"] is not None:
                 authenticated = False
@@ -74,7 +82,7 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                 "password": None,
                 "messages": [],
                 "connections": [],
-                "last_active": datetime.datetime.utcnow()
+                "last_active": datetime.datetime.now(datetime.UTC)
             }
             chat = chats[chat_name]
             authenticated = True
@@ -107,7 +115,7 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                     # Пароль верный
                     authenticated = True
                     # Обновляем отметку активности (успешное подключение - тоже активность)
-                    chat["last_active"] = datetime.datetime.utcnow()
+                    chat["last_active"] = datetime.datetime.now(datetime.UTC)
                     # Отправляем историю сообщений новому участнику
                     if chat["messages"]:
                         for old_msg in chat["messages"]:
@@ -133,7 +141,7 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                     # Если у чата ещё нет пароля, то первое сообщение устанавливает пароль
                     chat["password"] = text
                     # Обновляем время активности
-                    chat["last_active"] = datetime.datetime.utcnow()
+                    chat["last_active"] = datetime.datetime.now(datetime.UTC)
                     # Сохраняем чат в файл с новым паролем
                     chat_data = {
                         "name": chat_name,
@@ -149,13 +157,13 @@ async def websocket_chat(websocket: WebSocket, chat_name: str):
                     })
                     continue
                 # Обычная обработка сообщения
-                timestamp = datetime.datetime.utcnow().isoformat()
+                timestamp = datetime.datetime.now(datetime.UTC).isoformat()
                 message_entry = {"name": name, "text": text, "timestamp": timestamp}
                 if iv:
                     message_entry["iv"] = iv
                 # Сохраняем сообщение в истории
                 chat["messages"].append(message_entry)
-                chat["last_active"] = datetime.datetime.utcnow()
+                chat["last_active"] = datetime.datetime.now(datetime.UTC)
                 # Обновляем файл чата на диске
                 chat_data = {
                     "name": chat_name,
@@ -195,7 +203,7 @@ async def delete_chat(chat_name: str):
 async def cleanup_chats():
     while True:
         await asyncio.sleep(60)
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
         to_delete = []
         for name, chat in list(chats.items()):
             if chat["last_active"] is None:
@@ -225,11 +233,25 @@ async def on_startup():
     # Запускаем фоновую задачу очистки неактивных чатов
     asyncio.create_task(cleanup_chats())
 
-# Отдаем клиенту HTML-страницу
-@app.get("/", response_class=HTMLResponse)
-async def index():
+# # Отдаем клиенту HTML-страницу
+# @app.get("/", response_class=HTMLResponse)
+# async def index():
+#     try:
+#         with open("index.html", "r", encoding="utf-8") as f:
+#             return HTMLResponse(f.read(), status_code=200)
+#     except FileNotFoundError:
+#         raise HTTPException(status_code=404, detail="index.html not found")
+
+@app.get("/")
+def get_index():
+    return FileResponse(BASE_DIR / "index.html")
+
+if __name__ == "__main__":
     try:
-        with open("index.html", "r", encoding="utf-8") as f:
-            return HTMLResponse(f.read(), status_code=200)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="index.html not found")
+        port = 9125
+        webbrowser.open(f"http://localhost:{port}")
+        uvicorn.run(app, host="0.0.0.0", port=port)
+    except Exception as e:
+        print("\n🚨 Произошла ошибка при запуске сервера:")
+        print(f"{e}\n")
+        input("Нажмите Enter, чтобы закрыть программу...")
