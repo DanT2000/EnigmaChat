@@ -6,7 +6,7 @@
 
 ## 🔀 Навигация
 - [🇷🇺 Русская версия](#русская-версия)
-- [🇬🇧 English Version](#🇬🇧-english-version)
+- [🇬🇧 English Version](#english-version)
 
 ## 🕵️ EnigmaChat — Anonymous Encrypted Chat
 
@@ -21,6 +21,7 @@ Supports **custom encryption keys**, **chat deletion**, **offline usage**, and *
 Поддерживает **ввод ключа шифрования**, **удаление чата**, **работу без интернета** и **автозавершение неактивных сессий**.
 
 ---
+<a name="русская-версияn"></a>
 ## 🇷🇺 Русская версия
 
 ## 🛠️ Установка EnigmaChat на Ubuntu
@@ -134,6 +135,6 @@ Supports **custom encryption keys**, **chat deletion**, **offline usage**, and *
 ---
 
 🧠 Всё просто и минималистично: вы создаёте или заходите в чат, общаетесь, при желании шифруете сообщения, и всё это — без регистрации и лишних сложностей.
-
+<a name="english-version"></a>
 ## 🇬🇧 English Version
 
