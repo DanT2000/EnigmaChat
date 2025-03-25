@@ -45,11 +45,12 @@ Supports **custom encryption keys**, **chat deletion**, **offline usage**, and *
    ./install_ubuntu.sh
    ```
 
-4.   После этого начнётся автоматическая установка всех зависимостей и запуск сервера.
+Начнётся автоматическая установка зависимостей и запуск сервера.
 
-5. Всё готово 🎉  
-   Чат будет доступен по адресу `http://localhost:9125`  Вы можете изменить порт в SERVER.PY
+✅ Готово!
+Чат доступен по адресу http://localhost:9125
 
+Если вы хотите изменить порт, сделайте это в файле server.py и убедитесь, что порт открыт в системе и в файле сервиса.
 ---
 
 ## 🧹 Удаление
@@ -158,11 +159,12 @@ Supports **custom encryption keys**, **chat deletion**, **offline usage**, and *
    ./install_ubuntu.sh
    ```
 
-4. Select the port to run the chat on (default is 9125).  
-   The script will then install all dependencies and start the server automatically.
+The script will automatically install all dependencies and launch the server.
 
-5. Done! 🎉  
-   The chat will be available at `http://localhost:your_port` (e.g. `http://localhost:9125`).
+✅ Done!
+The chat is available at http://localhost:9125
+
+If you want to change the port, edit it in server.py and make sure it's open in your system and service file.
 
 ---
 
