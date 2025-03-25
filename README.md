@@ -1,8 +1,6 @@
 <p align="center">
   <img src="assets/logo.png" alt="EnigmaChat Logo" width="150"/>
 </p>
-> 🇷🇺 Этот файл доступен на русском и английском языках  
-> 🇬🇧 This file is available in Russian and English
 
 ## 🔀 Навигация
 - [🇷🇺 Русская версия](#russian-version)
@@ -138,3 +136,112 @@ Supports **custom encryption keys**, **chat deletion**, **offline usage**, and *
 <a name="english-version"></a>
 ## 🇬🇧 English Version
 
+## 🛠️ Installing EnigmaChat on Ubuntu
+
+1. Open a terminal and clone the repository:
+
+   ```bash
+   git clone https://github.com/DanT2000/EnigmaChat.git
+   ```
+
+2. Navigate to the project folder:
+
+   ```bash
+   cd EnigmaChat
+   ```
+
+3. Run the installation script:
+
+   ```bash
+   chmod +x install_ubuntu.sh
+   ```
+   ```bash
+   ./install_ubuntu.sh
+   ```
+
+4. Select the port to run the chat on (default is 9125).  
+   The script will then install all dependencies and start the server automatically.
+
+5. Done! 🎉  
+   The chat will be available at `http://localhost:your_port` (e.g. `http://localhost:9125`).
+
+---
+
+## 🧹 Uninstallation
+
+If you want to uninstall EnigmaChat, simply run the script again:
+
+```bash
+./install_ubuntu.sh
+```
+
+And choose the **Delete Chat** option — the script will handle the cleanup for you.
+
+---
+
+## 🛠️ Installing EnigmaChat on Windows
+
+There are **two ways** to run EnigmaChat on Windows:
+
+---
+
+### ✅ Option 1: Just launch the `.exe` (recommended)
+
+1. Download the prebuilt `EnigmaChat.exe`.
+2. Double-click to run it.
+3. The chat will open in your browser automatically.
+
+**Advantages:**
+- No need to install Python.
+- All libraries are bundled.
+- Starts with a single click.
+- Works offline.
+
+---
+
+### ⚙️ Option 2: Use `EnigmaChat.bat`
+
+If you'd prefer to run from source:
+
+1. Make sure Python 3.10+ is installed.
+2. Clone the project from GitHub:
+
+   ```bash
+   git clone https://github.com/DanT2000/EnigmaChat.git
+   ```
+
+3. Go to the project folder and run `EnigmaChat.bat`.  
+   It will install all dependencies and let you choose a port.
+
+**Advantages:**
+- Easy to modify and customize.
+- Ideal for developers and tinkerers.
+
+---
+
+## 🔐 EnigmaChat Logic
+
+Once the site loads, you'll see a **simple input field** — enter the **chat name** there.
+
+- 📥 **If a chat with that name already exists**, you'll be asked to enter the **access password**.
+- 🆕 **If the chat doesn't exist**, it will be created automatically. The **first message** you send will become the **password for that chat** (you’ll need it next time to access it).
+
+---
+
+### 💬 Chat Interface
+
+After entering, you'll see the chat window with **three buttons in the top right corner**:
+
+1. 🔐 **Lock icon** — manages the **encryption key**.  
+   Enter a shared passphrase to **encrypt and decrypt** all messages.  
+   > Note: **Encryption is optional**, but if you want privacy, agree on a shared key with your partner.
+
+2. 🧑‍💻 **User icon** — lets you **set your name**.  
+   By default, you appear as **Anonymous**, but you can set any name which will be shown with your messages.
+
+3. 🗑 **Trash icon** — **deletes the chat manually**.  
+   If you don’t delete it, the chat will be **automatically removed** after a period of inactivity.
+
+---
+
+🧠 Simple and minimal: create or join a chat, communicate, optionally encrypt, and do it all without accounts or hassle.
